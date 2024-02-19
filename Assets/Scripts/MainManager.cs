@@ -11,11 +11,15 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HiScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
-    private int m_Points;
-    
+    public int m_Points;
+    public string playerName;
+    public int savedHiScore;
+    public string savedPlayerName;
+
     private bool m_GameOver = false;
 
     
@@ -24,7 +28,10 @@ public class MainManager : MonoBehaviour
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
+        playerName = PlayerPrefs.GetString("name");
+        UnityEngine.Debug.Log(playerName);
         
+
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -36,6 +43,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        SavManager.Instance.LoadHiScore();
+        HiScoreText.text = savedPlayerName + " - " + $"HiScore : {savedHiScore}";
     }
 
     private void Update()
@@ -57,7 +66,7 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(0);
             }
         }
     }
@@ -65,12 +74,27 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = playerName + " - " + $"Score : {m_Points}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        setNewHiScore();
+        
+
     }
+
+    public void setNewHiScore()
+    {
+        SavManager.Instance.LoadHiScore();
+        if (m_Points > savedHiScore)
+            {
+            SavManager.Instance.SaveHiScore();
+            }
+
+    }
+
+
 }
